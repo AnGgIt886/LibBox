@@ -1,0 +1,55 @@
+name: Build libbox from sing-box
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      GO_VERSION: "^1.24.3"
+      GOPATH: ${{ github.workspace }}/go
+      GOMOBILE: ${{ github.workspace }}/go/bin/gomobile
+
+    steps:
+      - name: Checkout sing-box repository
+        uses: actions/checkout@v3
+        with:
+          repository: SagerNet/sing-box
+          ref: main
+          submodules: true
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Install gomobile
+        run: |
+          go install golang.org/x/mobile/cmd/gomobile@latest
+          $GOPATH/bin/gomobile init
+
+      - name: Install Android NDK
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r28
+          add-to-path: true
+
+      - name: Build libbox
+        run: |
+          make lib_install
+          make lib_android
+
+      - name: Upload libbox artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: libbox
+          path: |
+            libbox.aar
