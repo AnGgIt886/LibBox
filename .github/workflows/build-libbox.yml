@@ -47,9 +47,27 @@ jobs:
           make lib_install
           make lib_android
 
+      - name: Build
+        run: |-
+          rm -rfd clients/android
+          git clone https://github.com/MRT-project/sing-box-for-android clients/android
+          mkdir clients/android/app/libs
+          cp libbox.aar clients/android/app/libs
+          cd clients/android
+          ./gradlew :app:assembleOtherRelease
+        env:
+          LOCAL_PROPERTIES: ${{ secrets.LOCAL_PROPERTIES }}
+
       - name: Upload libbox artifacts
         uses: actions/upload-artifact@v4
         with:
           name: libbox
           path: |
             libbox.aar
+
+      - name: Upload libbox artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: SFA-arm64
+          path: |
+            clients/android/app/build/outputs/apk/other/release/*arm64-v8a*.apk
