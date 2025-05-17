@@ -55,8 +55,6 @@ jobs:
           cp libbox.aar clients/android/app/libs
           cd clients/android
           ./gradlew :app:assembleOtherRelease
-        env:
-          LOCAL_PROPERTIES: ${{ secrets.LOCAL_PROPERTIES }}
 
       - name: Upload libbox artifacts
         uses: actions/upload-artifact@v4
